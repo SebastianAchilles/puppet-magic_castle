@@ -34,6 +34,7 @@ mod 'puppetlabs-mount_core', '1.0.4'
 mod 'puppetlabs-mysql', '10.8.0'
 mod 'puppetlabs-stdlib', '5.2.0'
 mod 'puppetlabs-transition', '0.1.3'
+mod 'saz-limits', '3.0.4'
 mod 'yelp-netstdlib', '0.0.1'
 mod 'KyleAnderson-consul', '6.1.0'
 
