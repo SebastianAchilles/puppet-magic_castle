@@ -63,4 +63,11 @@ node default {
   if 'mfa' in $instance_tags {
     include profile::mfa
   }
+
+  if 'public' in $instance_tags {
+    include profile::mail::relayhost
+  } else {
+    include profile::mail::sender
+  }
+
 }

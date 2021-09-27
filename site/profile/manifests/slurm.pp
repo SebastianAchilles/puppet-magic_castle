@@ -308,7 +308,6 @@ class profile::slurm::accounting(String $password, Integer $dbd_port = 6819) {
 # Slurm controller class. This where slurmctld is ran.
 class profile::slurm::controller {
   contain profile::slurm::base
-  include profile::mail::server
 
   file { '/usr/sbin/slurm_mail':
     ensure => 'present',
