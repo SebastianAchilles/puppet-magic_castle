@@ -3,11 +3,12 @@ class profile::mail::sender(
   String $origin,
 ) {
   class { 'postfix':
-    inet_protocols => 'ipv4',
-    relayhost      => $relayhost_ip,
-    myorigin       => $origin,
-    satellite      => true,
-    manage_mailx   => false,
+    inet_protocols   => 'ipv4',
+    relayhost        => $relayhost_ip,
+    myorigin         => $origin,
+    satellite        => true,
+    manage_mailx     => false,
+    manage_conffiles => false,
   }
 
   postfix::config { 'authorized_submit_users':
@@ -25,14 +26,15 @@ class profile::mail::relayhost(
   $ipaddress = $::networking['interfaces'][$interface]['ip']
 
   class { 'postfix':
-    inet_interfaces => "127.0.0.1, ${ipaddress}",
-    inet_protocols  => 'ipv4',
-    mynetworks      => "127.0.0.0/8, ${cidr}",
-    myorigin        => $origin,
-    mta             => true,
-    relayhost       => 'direct',
-    smtp_listen     => 'all',
-    manage_mailx    => false,
+    inet_interfaces  => "127.0.0.1, ${ipaddress}",
+    inet_protocols   => 'ipv4',
+    mynetworks       => "127.0.0.0/8, ${cidr}",
+    myorigin         => $origin,
+    mta              => true,
+    relayhost        => 'direct',
+    smtp_listen      => 'all',
+    manage_mailx     => false,
+    manage_conffiles => false,
   }
 
   postfix::config { 'authorized_submit_users':
