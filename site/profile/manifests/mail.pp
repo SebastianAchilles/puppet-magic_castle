@@ -58,8 +58,9 @@ class profile::mail::dkim (
   }
 
   service { 'opendkim':
-    ensure => running,
-    enable => true,
+    ensure  => running,
+    enable  => true,
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-Mode':
