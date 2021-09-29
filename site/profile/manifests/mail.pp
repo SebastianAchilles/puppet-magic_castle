@@ -21,7 +21,9 @@ class profile::mail::relayhost(
   String $origin,
 ) {
 
-  include profile::mail::dkim
+  class { 'profile::mail::dkim':
+    domain_name => $origin,
+  }
 
   $cidr = profile::getcidr()
   $interface = split($::interfaces, ',')[0]
@@ -45,7 +47,10 @@ class profile::mail::relayhost(
   }
 }
 
-class profile::mail::dkim {
+class profile::mail::dkim (
+  String $domain_name
+) {
+
 
   package { 'opendkim':
     ensure => 'installed'
@@ -110,6 +115,41 @@ class profile::mail::dkim {
     line   => 'InternalHosts refile:/etc/opendkim/TrustedHosts',
     match  => '^#?InternalHosts',
     notify => Service['opendkim']
+  }
+
+  file_line { 'opendkim-KeyTable-content':
+    ensure => present,
+    paht   => '/etc/opendkim/KeyTable',
+    line   => "default._domainkey.${domain_name} ${domain_name}:default:/etc/opendkim/keys/default.private"
+  }
+
+  file_line { 'opendkim-SigningTable-content':
+    ensure => present,
+    paht   => '/etc/opendkim/SigningTable',
+    line   => "*@${domain_name} default._domainkey.${domain_name}",
+    notify => Service['opendkim']
+  }
+
+  file_line { 'opendkim-TrustedHosts':
+    ensure => present,
+    path   => '/etc/opendkim/TrustedHosts',
+    line   => $cidr,
+    notify => Service['opendkim']
+  }
+
+  postfix::config { 'smtpd_milters':
+    ensure => present,
+    value  => 'inet:127.0.0.1:8891',
+  }
+
+  postfix::config { 'non_smtpd_milters':
+    ensure => present,
+    value  => '$smtpd_milters',
+  }
+
+  postfix::config { 'milter_default_action':
+    ensure => present,
+    value  => 'accept',
   }
 
 }
