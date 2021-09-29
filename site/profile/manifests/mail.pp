@@ -119,13 +119,13 @@ class profile::mail::dkim (
 
   file_line { 'opendkim-KeyTable-content':
     ensure => present,
-    paht   => '/etc/opendkim/KeyTable',
+    path   => '/etc/opendkim/KeyTable',
     line   => "default._domainkey.${domain_name} ${domain_name}:default:/etc/opendkim/keys/default.private"
   }
 
   file_line { 'opendkim-SigningTable-content':
     ensure => present,
-    paht   => '/etc/opendkim/SigningTable',
+    path   => '/etc/opendkim/SigningTable',
     line   => "*@${domain_name} default._domainkey.${domain_name}",
     notify => Service['opendkim']
   }
