@@ -64,6 +64,14 @@ class profile::mail::dkim {
     notify => Service['opendkim']
   }
 
+  file_line { 'opendkim-Canonicalization':
+    ensure => present,
+    path   => '/etc/opendkim.conf',
+    line   => 'Canonicalization relaxed/simple',
+    match  => '^#?Canonicalization',
+    notify => Service['opendkim']
+  }
+
   file_line { 'opendkim-KeyFile':
     ensure => present,
     path   => '/etc/opendkim.conf',
