@@ -58,7 +58,7 @@ class profile::mail::dkim {
 
   file_line { 'opendkim-Mode':
     ensure => present,
-    path   => '/etc/opendkim',
+    path   => '/etc/opendkim/opendkim.conf',
     line   => 'Mode sv',
     match  => '^Mode',
     notify => Service['opendkim']
@@ -66,7 +66,7 @@ class profile::mail::dkim {
 
   file_line { 'opendkim-KeyFile':
     ensure => present,
-    path   => '/etc/opendkim',
+    path   => '/etc/opendkim/opendkim.conf',
     line   => '#KeyFile /etc/opendkim/keys/default.private',
     match  => '^KeyFile',
     notify => Service['opendkim']
@@ -74,7 +74,7 @@ class profile::mail::dkim {
 
   file_line { 'opendkim-KeyTable':
     ensure => present,
-    path   => '/etc/opendkim',
+    path   => '/etc/opendkim/opendkim.conf',
     line   => 'KeyTable refile:/etc/opendkim/KeyTable',
     match  => '^#KeyTable',
     notify => Service['opendkim']
@@ -82,7 +82,7 @@ class profile::mail::dkim {
 
   file_line { 'opendkim-SigningTable':
     ensure => present,
-    path   => '/etc/opendkim',
+    path   => '/etc/opendkim/opendkim.conf',
     line   => 'SigningTable refile:/etc/opendkim/SigningTable',
     match  => '^#SigningTable',
     notify => Service['opendkim']
@@ -90,7 +90,7 @@ class profile::mail::dkim {
 
   file_line { 'opendkim-ExternalIgnoreList':
     ensure => present,
-    path   => '/etc/opendkim',
+    path   => '/etc/opendkim/opendkim.conf',
     line   => 'ExternalIgnoreList refile:/etc/opendkim/TrustedHosts',
     match  => '^#ExternalIgnoreList',
     notify => Service['opendkim']
@@ -98,7 +98,7 @@ class profile::mail::dkim {
 
   file_line { 'opendkim-InternalHosts':
     ensure => present,
-    path   => '/etc/opendkim',
+    path   => '/etc/opendkim/opendkim.conf',
     line   => 'InternalHosts refile:/etc/opendkim/TrustedHosts',
     match  => '^#InternalHosts',
     notify => Service['opendkim']
