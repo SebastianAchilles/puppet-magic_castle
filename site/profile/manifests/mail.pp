@@ -42,3 +42,64 @@ class profile::mail::relayhost(
     value  => 'root, slurm',
   }
 }
+
+class profile::mail::dkim {
+
+  package { 'opendkim':
+    ensure => 'installed'
+  }
+
+  service { 'opendkim':
+    ensure => running,
+    enable => true,
+  }
+
+  file_line { 'opendkim-Mode':
+    ensure => present,
+    path   => '/etc/opendkim',
+    line   => 'Mode sv',
+    match  => '^Mode',
+    notify => Service['opendkim']
+  }
+
+  file_line { 'opendkim-KeyFile':
+    ensure => present,
+    path   => '/etc/opendkim',
+    line   => '#KeyFile /etc/opendkim/keys/default.private',
+    match  => '^KeyFile',
+    notify => Service['opendkim']
+  }
+
+  file_line { 'opendkim-KeyTable':
+    ensure => present,
+    path   => '/etc/opendkim',
+    line   => 'KeyTable refile:/etc/opendkim/KeyTable',
+    match  => '^#KeyTable',
+    notify => Service['opendkim']
+  }
+
+  file_line { 'opendkim-SigningTable':
+    ensure => present,
+    path   => '/etc/opendkim',
+    line   => 'SigningTable refile:/etc/opendkim/SigningTable',
+    match  => '^#SigningTable',
+    notify => Service['opendkim']
+  }
+
+  file_line { 'opendkim-ExternalIgnoreList':
+    ensure => present,
+    path   => '/etc/opendkim',
+    line   => 'ExternalIgnoreList refile:/etc/opendkim/TrustedHosts',
+    match  => '^#ExternalIgnoreList',
+    notify => Service['opendkim']
+  }
+
+  file_line { 'opendkim-InternalHosts':
+    ensure => present,
+    path   => '/etc/opendkim',
+    line   => 'InternalHosts refile:/etc/opendkim/TrustedHosts',
+    match  => '^#InternalHosts',
+    notify => Service['opendkim']
+  }
+
+}
