@@ -75,7 +75,7 @@ class profile::mail::dkim {
   file_line { 'opendkim-KeyFile':
     ensure => present,
     path   => '/etc/opendkim.conf',
-    line   => '#?KeyFile /etc/opendkim/keys/default.private',
+    line   => '#KeyFile /etc/opendkim/keys/default.private',
     match  => '^KeyFile',
     notify => Service['opendkim']
   }
