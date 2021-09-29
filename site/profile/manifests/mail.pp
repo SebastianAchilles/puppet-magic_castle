@@ -21,6 +21,8 @@ class profile::mail::relayhost(
   String $origin,
 ) {
 
+  include profile::mail::dkim
+
   $cidr = profile::getcidr()
   $interface = split($::interfaces, ',')[0]
   $ipaddress = $::networking['interfaces'][$interface]['ip']
