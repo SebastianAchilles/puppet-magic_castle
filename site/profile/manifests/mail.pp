@@ -53,7 +53,8 @@ class profile::mail::dkim (
   $cidr = profile::getcidr()
 
   package { 'opendkim':
-    ensure => 'installed'
+    ensure  => 'installed',
+    require => Yumrepo['epel'],
   }
 
   service { 'opendkim':
