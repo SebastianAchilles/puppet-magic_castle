@@ -50,7 +50,7 @@ class profile::mail::relayhost(
 class profile::mail::dkim (
   String $domain_name
 ) {
-
+  $cidr = profile::getcidr()
 
   package { 'opendkim':
     ensure => 'installed'
