@@ -66,7 +66,10 @@ class profile::mail::dkim (
   service { 'opendkim':
     ensure  => running,
     enable  => true,
-    require => Package['opendkim'],
+    require => [
+      Package['opendkim'],
+      File['/etc/opendkim/keys/default.private'],
+    ],
   }
 
   file_line { 'opendkim-Mode':
