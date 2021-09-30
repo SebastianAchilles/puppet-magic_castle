@@ -57,6 +57,12 @@ class profile::mail::dkim (
     require => Yumrepo['epel'],
   }
 
+  file { '/etc/opendkim/keys/default.private':
+    user  => 'opendkim',
+    group => 'opendkim',
+    mode  => '0600',
+  }
+
   service { 'opendkim':
     ensure  => running,
     enable  => true,
@@ -64,79 +70,90 @@ class profile::mail::dkim (
   }
 
   file_line { 'opendkim-Mode':
-    ensure => present,
-    path   => '/etc/opendkim.conf',
-    line   => 'Mode sv',
-    match  => '^Mode',
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim.conf',
+    line    => 'Mode sv',
+    match   => '^Mode',
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-Canonicalization':
-    ensure => present,
-    path   => '/etc/opendkim.conf',
-    line   => 'Canonicalization relaxed/simple',
-    match  => '^#?Canonicalization',
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim.conf',
+    line    => 'Canonicalization relaxed/simple',
+    match   => '^#?Canonicalization',
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-KeyFile':
-    ensure => present,
-    path   => '/etc/opendkim.conf',
-    line   => '#KeyFile /etc/opendkim/keys/default.private',
-    match  => '^KeyFile',
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim.conf',
+    line    => '#KeyFile /etc/opendkim/keys/default.private',
+    match   => '^KeyFile',
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-KeyTable':
-    ensure => present,
-    path   => '/etc/opendkim.conf',
-    line   => 'KeyTable refile:/etc/opendkim/KeyTable',
-    match  => '^#?KeyTable',
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim.conf',
+    line    => 'KeyTable refile:/etc/opendkim/KeyTable',
+    match   => '^#?KeyTable',
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-SigningTable':
-    ensure => present,
-    path   => '/etc/opendkim.conf',
-    line   => 'SigningTable refile:/etc/opendkim/SigningTable',
-    match  => '^#?SigningTable',
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim.conf',
+    line    => 'SigningTable refile:/etc/opendkim/SigningTable',
+    match   => '^#?SigningTable',
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-ExternalIgnoreList':
-    ensure => present,
-    path   => '/etc/opendkim.conf',
-    line   => 'ExternalIgnoreList refile:/etc/opendkim/TrustedHosts',
-    match  => '^#?ExternalIgnoreList',
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim.conf',
+    line    => 'ExternalIgnoreList refile:/etc/opendkim/TrustedHosts',
+    match   => '^#?ExternalIgnoreList',
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-InternalHosts':
-    ensure => present,
-    path   => '/etc/opendkim.conf',
-    line   => 'InternalHosts refile:/etc/opendkim/TrustedHosts',
-    match  => '^#?InternalHosts',
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim.conf',
+    line    => 'InternalHosts refile:/etc/opendkim/TrustedHosts',
+    match   => '^#?InternalHosts',
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-KeyTable-content':
-    ensure => present,
-    path   => '/etc/opendkim/KeyTable',
-    line   => "default._domainkey.${domain_name} ${domain_name}:default:/etc/opendkim/keys/default.private"
+    ensure  => present,
+    path    => '/etc/opendkim/KeyTable',
+    line    => "default._domainkey.${domain_name} ${domain_name}:default:/etc/opendkim/keys/default.private",
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-SigningTable-content':
-    ensure => present,
-    path   => '/etc/opendkim/SigningTable',
-    line   => "*@${domain_name} default._domainkey.${domain_name}",
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim/SigningTable',
+    line    => "*@${domain_name} default._domainkey.${domain_name}",
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   file_line { 'opendkim-TrustedHosts':
-    ensure => present,
-    path   => '/etc/opendkim/TrustedHosts',
-    line   => $cidr,
-    notify => Service['opendkim']
+    ensure  => present,
+    path    => '/etc/opendkim/TrustedHosts',
+    line    => $cidr,
+    notify  => Service['opendkim'],
+    require => Package['opendkim'],
   }
 
   postfix::config { 'smtpd_milters':
