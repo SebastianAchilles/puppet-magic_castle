@@ -47,6 +47,24 @@ class profile::mail::relayhost(
   }
 }
 
+
+# profile::mail::dkim class
+#
+# This class manages OpenDKIM installation and service.
+# It is meant to be used in conjunction with puppet:mail::relayhost.
+# OpenDKIM signs emails with a private key and email providers can
+# verify the email signature authenticity using the DKIM dns record.
+
+# That the class assumes the private keys exists in /etc/opendkim/keys/default.private.
+# The class also assumes the corresponding public key is published as a TXT DNS record
+# under default._domainkey.${domain_name}.
+#
+# @example Declaring the class
+#   class { 'profile::mail::dkim':
+#     domain_name => mycluster.mydomain.tld
+#   }
+#
+# @param domain_name Domain name from which the cluster will send emails.
 class profile::mail::dkim (
   String $domain_name
 ) {
