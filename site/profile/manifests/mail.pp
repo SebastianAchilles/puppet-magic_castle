@@ -58,9 +58,10 @@ class profile::mail::dkim (
   }
 
   file { '/etc/opendkim/keys/default.private':
-    owner => 'opendkim',
-    group => 'opendkim',
-    mode  => '0600',
+    owner   => 'opendkim',
+    group   => 'opendkim',
+    mode    => '0600',
+    require => Package['opendkim'],
   }
 
   service { 'opendkim':
