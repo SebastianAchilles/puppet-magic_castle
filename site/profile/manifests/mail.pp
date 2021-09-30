@@ -58,7 +58,7 @@ class profile::mail::dkim (
   }
 
   file { '/etc/opendkim/keys/default.private':
-    user  => 'opendkim',
+    owner => 'opendkim',
     group => 'opendkim',
     mode  => '0600',
   }
