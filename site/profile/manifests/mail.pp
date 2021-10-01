@@ -15,6 +15,14 @@ class profile::mail::sender(
     ensure => present,
     value  => 'root, slurm',
   }
+
+  firewall { '002 drop access to smtp':
+    chain  => 'OUTPUT',
+    proto  => 'tcp',
+    dport  => [25],
+    action => 'drop',
+    uid    => '! root'
+  }
 }
 
 class profile::mail::relayhost(
@@ -44,6 +52,14 @@ class profile::mail::relayhost(
   postfix::config { 'authorized_submit_users':
     ensure => present,
     value  => 'root, slurm',
+  }
+
+  firewall { '002 drop access to smtp':
+    chain  => 'OUTPUT',
+    proto  => 'tcp',
+    dport  => [25],
+    action => 'drop',
+    uid    => '! root'
   }
 }
 
