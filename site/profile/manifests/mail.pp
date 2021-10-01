@@ -1,7 +1,26 @@
+class profile::mail::base {
+  $cidr = profile::getcidr()
+
+  postfix::config { 'authorized_submit_users':
+    ensure => present,
+    value  => 'root, slurm',
+  }
+
+  firewall { '002 drop IPA user access to internal smtp server':
+    chain       => 'OUTPUT',
+    proto       => 'tcp',
+    dport       => [25],
+    destination => ['127.0.0.0/8', $cidr],
+    action      => 'drop',
+    uid         => "! 0-${facts['uid_max']}"
+  }
+}
+
 class profile::mail::sender(
   String $relayhost_ip,
   String $origin,
 ) {
+  include profile::mail::base
   class { 'postfix':
     inet_protocols   => 'ipv4',
     relayhost        => $relayhost_ip,
@@ -10,25 +29,12 @@ class profile::mail::sender(
     manage_mailx     => false,
     manage_conffiles => false,
   }
-
-  postfix::config { 'authorized_submit_users':
-    ensure => present,
-    value  => 'root, slurm',
-  }
-
-  firewall { '002 drop access to smtp':
-    chain  => 'OUTPUT',
-    proto  => 'tcp',
-    dport  => [25],
-    action => 'drop',
-    uid    => '! root'
-  }
 }
 
 class profile::mail::relayhost(
   String $origin,
 ) {
-
+  include profile::mail::base
   class { 'profile::mail::dkim':
     domain_name => $origin,
   }
@@ -47,19 +53,6 @@ class profile::mail::relayhost(
     smtp_listen      => 'all',
     manage_mailx     => false,
     manage_conffiles => false,
-  }
-
-  postfix::config { 'authorized_submit_users':
-    ensure => present,
-    value  => 'root, slurm',
-  }
-
-  firewall { '002 drop access to smtp':
-    chain  => 'OUTPUT',
-    proto  => 'tcp',
-    dport  => [25],
-    action => 'drop',
-    uid    => '! root'
   }
 }
 
