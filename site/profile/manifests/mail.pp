@@ -6,11 +6,20 @@ class profile::mail::base {
     value  => 'root, slurm',
   }
 
+  firewall { '002 drop IPA user access to local smtp server':
+    chain       => 'OUTPUT',
+    proto       => 'tcp',
+    dport       => [25],
+    destination => '127.0.0.0/8',
+    action      => 'drop',
+    uid         => "! 0-${facts['uid_max']}"
+  }
+
   firewall { '002 drop IPA user access to internal smtp server':
     chain       => 'OUTPUT',
     proto       => 'tcp',
     dport       => [25],
-    destination => ['127.0.0.0/8', $cidr],
+    destination => $cidr,
     action      => 'drop',
     uid         => "! 0-${facts['uid_max']}"
   }
