@@ -276,6 +276,11 @@ class profile::freeipa::server
     notify  => Service['systemd-logind']
   }
 
+  exec { 'dontauditoff':
+    command => '/usr/sbin/semanage dontaudit off',
+    before  => Exec['ipa-server-install'],
+  }
+
   file_line { 'ipa_server_fileline':
     ensure  => present,
     path    => '/etc/ipa/default.conf',
