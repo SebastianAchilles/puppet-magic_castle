@@ -23,10 +23,10 @@ formatter = logging.Formatter(
     fmt="%(asctime)s.%(msecs)03d %(levelname)s {%(module)s} [%(funcName)s] %(message)s",
     datefmt="%Y-%m-%d,%H:%M:%S",
 )
-handler = logging.handlers.RotatingFileHandler("/var/log/ipa_user_add.log")
-handler.setFormatter(fmt=formatter)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+handler.setFormatter(formatter)
 iau_logger.addHandler(handler)
-
 
 def init_api():
     api.bootstrap_with_global_options(context="cli")

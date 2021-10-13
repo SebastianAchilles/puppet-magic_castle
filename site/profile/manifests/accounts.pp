@@ -75,10 +75,14 @@ class profile::accounts::guests(
 {
   require profile::accounts
 
+  file { '/var/log/ipa_user_add.log':
+    ensure => present,
+  }
+
   $admin_passwd = lookup('profile::freeipa::base::admin_passwd')
   if $nb_accounts > 0 {
     exec{ 'ipa_add_user':
-      command     => "kinit_wrapper ipa_create_user.py $(seq -w ${nb_accounts} | sed 's/^/${prefix}/') --sponsor=${$sponsor}",
+      command     => "kinit_wrapper ipa_create_user.py $(seq -w ${nb_accounts} | sed 's/^/${prefix}/') --sponsor=${$sponsor} >> /var/log/ipa_user_add.log",
       unless      => "getent passwd $(seq -w ${nb_accounts} | sed 's/^/${prefix}/')",
       environment => ["IPA_ADMIN_PASSWD=${admin_passwd}",
                       "IPA_GUEST_PASSWD=${passwd}"],
