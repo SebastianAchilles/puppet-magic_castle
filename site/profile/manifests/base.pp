@@ -143,6 +143,14 @@ class profile::base (
   package { 'diffutils':
     ensure => 'installed'
   }
+  
+  package { 'htop':
+    ensure => 'installed'
+  }
+  
+  package { 'tmux':
+    ensure => 'installed'
+  }
 
   package { 'firewalld':
     ensure => 'absent',
