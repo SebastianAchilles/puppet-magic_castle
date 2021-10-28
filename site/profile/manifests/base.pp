@@ -99,6 +99,50 @@ class profile::base (
   package { 'unzip':
     ensure => 'installed'
   }
+  
+  package { 'bzip2':
+    ensure => 'installed'
+  }
+  
+  package { 'file':
+    ensure => 'installed'
+  }
+  
+  package { 'gcc-c++':
+    ensure => 'installed'
+  }
+  
+  package { 'git':
+    ensure => 'installed'
+  }
+  
+  package { 'make':
+    ensure => 'installed'
+  }
+  
+  package { 'openssl':
+    ensure => 'installed'
+  }
+  
+  package { 'openssl-devel':
+    ensure => 'installed'
+  }
+  
+  package { 'patch':
+    ensure => 'installed'
+  }
+  
+  package { 'which':
+    ensure => 'installed'
+  }
+  
+  package { 'rdma-core-devel':
+    ensure => 'installed'
+  }
+  
+  package { 'diffutils':
+    ensure => 'installed'
+  }
 
   package { 'firewalld':
     ensure => 'absent',
