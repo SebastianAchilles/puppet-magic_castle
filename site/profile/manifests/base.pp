@@ -151,6 +151,18 @@ class profile::base (
   package { 'tmux':
     ensure => 'installed'
   }
+  
+  package { 'p7zip':
+    ensure => 'installed'
+  }
+  
+  package { 'p7zip-plugins':
+    ensure => 'installed'
+  }
+  
+  package { 'csh':
+    ensure => 'installed'
+  }
 
   package { 'firewalld':
     ensure => 'absent',
