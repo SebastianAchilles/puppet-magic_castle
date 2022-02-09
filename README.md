@@ -10,17 +10,13 @@ variables for each profile.
 
 | Variable                                  | Type       | Description                                                                         | Default       |
 | ----------------------------------------- | :--------  | :---------------------------------------------------------------------------------- | ------------- |
-| `profile::accounts::guests::passwd`       | String[8]  | Password set for all guest accounts (min length: 8)                                 |               |
-| `profile::accounts::guests::nb_accounts`  | Integer[0] | Number of guests account that needs to be created (min value: 0)                    |               |
-| `profile::accounts::guests::prefix`       | String[1]  | Prefix for guest account usernames followed an index i.e: `user12` (min length: 1)  | `'user'`      |
-| `profile::accounts::guests::sponsor`      | String[3]  | Name for the sponsor group and sponsor Slurm account  (min length: 3)               | `'sponsor00'` |
+| `profile::accounts:::project_regex` | String | Regex to identify LDAP groups that should also be Slurm accounts | `'(ctb|def|rpp|rrg)-[a-z0-9_-]*'` |
 
 ## profile::base
 
 | Variable                         | Type   | Description                                                                             | Default    |
 | -------------------------------- | :----- | :-------------------------------------------------------------------------------------- | ---------- |
 | `profile::base::admin_email`     | String | Email of the cluster administrator, use to send log and report cluster related issues   | `undef`    |
-| `profile::base::sudoer_username` | String | Name of the user with sudo rights. Used to config SELinux user mapping                  | `'centos'` |
 
 ## profile::consul
 
@@ -34,8 +30,7 @@ variables for each profile.
 | ------------------------------------------------ | :------------ | :--------------------------------------------- | -------------------------------------------------------------------- |
 | `profile::cvmfs::client::quota_limit`            | Integer       | Instance local cache directory soft quota (MB) | 4096                                                                 |
 | `profile::cvmfs::client::repositories`           | Array[String] | List of CVMFS repositories to mount            | `['cvmfs-config.computecanada.ca', 'soft.computecanada.ca']`         |
-| `profile::cvmfs::client::lmod_default_modules`   | Array[String] | List of lmod default modules                   | `['nixpkgs/16.09', 'imkl/2018.3.222', 'gcc/7.3.0', 'openmpi/3.1.2']` |
-
+| `profile::cvmfs::client::lmod_default_modules`   | Array[String] | List of lmod default modules                   | `['gentoo/2020', 'imkl/2020.1.217', 'gcc/9.3.0', 'openmpi/4.0.3']` |
 
 ## profile::fail2ban
 
@@ -86,10 +81,11 @@ variables for each profile.
 | ------------------------------------- | :------ | :---------------------------------------------------------------------- | -------- |
 | `profile::slurm::base::cluster_name`  | String  | Name of the cluster                                                     |          |
 | `profile::slurm::base::munge_key`     | String  | Base64 encoded Munge key                                                |          |
-| `profile::slurm::base::slurm_version`  | Enum[19.05, 20.11, 21.08]  | Slurm version to install                                                      | 20.11       |
-| `profile::slurm::base::enable_x11_forwarding`  | Boolean  | Enable Slurm's built-in X11 forwarding capabilities | `true`       |
-| `profile::slurm::accounting::password` | String  | Password used by for SlurmDBD to connect to MariaDB                     |          |
-| `profile::slurm::accounting::dbd_port` | Integer | SlurmDBD service listening port                                         |          |
+| `profile::slurm::base::slurm_version`  | Enum[19.05, 20.11, 21.08]  | Slurm version to install                            | 21.08    |
+| `profile::slurm::base::enable_x11_forwarding`  | Boolean  | Enable Slurm's built-in X11 forwarding capabilities           | `true`   |
+| `profile::slurm::accounting::password` | String  | Password used by for SlurmDBD to connect to MariaDB                    |          |
+| `profile::slurm::accounting::dbd_port` | Integer | SlurmDBD service listening port                                        |          |
+| `profile::slurm::controller::selinux_context` | String | SELinux context for jobs (used only with Slurm >= 21.08)         | `user_u:user_r:user_t:s0` |
 
 ## profile::squid
 
@@ -98,6 +94,46 @@ variables for each profile.
 | `profile::squid::port`                | Integer        | Squid service listening port                                                | 3128     |
 | `profile::squid::cache_size`          | Integer        | Amount of disk space (MB) that can be used by Squid service                 | 4096     |
 | `profile::squid::cvmfs_acl_regex`     | Array[String]  | List of regexes corresponding to CVMFS stratum users are allowed to access  | `['^(cvmfs-.*\.computecanada\.ca)$', '^(.*-cvmfs\.openhtc\.io)$', '^(cvmfs-.*\.genap\.ca)$']`     |
+
+## profile::users
+
+| Variable                              | Type           | Description                                                                 | Default  |
+| ------------------------------------- | :------------- | :-------------------------------------------------------------------------- | -------- |
+| `profile::users::ldap::users` | Hash[Hash] | Dictionary of users to be created in LDAP | |
+| `profile::users::local::users` | Hash[Hash] | Dictionary of users to be created locally | |
+
+### profile::users::ldap::users
+
+A batch of 10 LDAP users, user01 to user10, can be defined in hieradata as:
+```
+profile::users::ldap::users:
+  user:
+    count: 10
+    passwd: user.password.is.easy.to.remember
+    groups: ['def-sponsor00']
+```
+
+A single LDAP user can be defined as:
+```
+profile::users::ldap::users:
+  alice:
+    passwd: user.password.is.easy.to.remember
+    groups: ['def-sponsor00']
+    public_keys: ['ssh-rsa ... user@local', 'ssh-ecdsa ...']
+```
+
+### profile::users::local::users
+
+A local user `bob` can be defined in hieradata as:
+```
+profile::users::local::users:
+  bob:
+    groups: ['group1', 'group2']
+    public_keys: ['ssh-rsa...', 'ssh-dsa']
+    # sudoer: false
+    # selinux_user: 'unconfined_u'
+    # mls_range: ''s0-s0:c0.c1023'
+```
 
 ## profile::workshop
 

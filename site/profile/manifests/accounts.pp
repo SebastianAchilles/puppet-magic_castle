@@ -1,13 +1,10 @@
-class profile::accounts {
+class profile::accounts (
+  String $project_regex
+) {
   require profile::freeipa::server
   require profile::freeipa::mokey
   require profile::nfs::server
   require profile::slurm::accounting
-
-  file { '/sbin/ipa_create_user.py':
-    source => 'puppet:///modules/profile/accounts/ipa_create_user.py',
-    mode   => '0755'
-  }
 
   $nfs_devices = lookup('profile::nfs::server::devices', undef, undef, {})
   $with_home = 'home' in $nfs_devices
@@ -50,7 +47,8 @@ class profile::accounts {
   file { '/sbin/mkproject.sh':
     ensure  => 'present',
     content => epp('profile/accounts/mkproject.sh', {
-      with_folder => $with_project,
+      project_regex => $project_regex,
+      with_folder   => $with_project,
     }),
     mode    => '0755',
     owner   => 'root',
@@ -66,24 +64,3 @@ class profile::accounts {
   }
 }
 
-class profile::accounts::guests(
-  String[8] $passwd,
-  Integer[0] $nb_accounts,
-  String[1] $prefix = 'user',
-  String[3] $sponsor = 'sponsor00'
-  )
-{
-  require profile::accounts
-
-  $admin_passwd = lookup('profile::freeipa::base::admin_passwd')
-  if $nb_accounts > 0 {
-    exec{ 'ipa_add_user':
-      command     => "kinit_wrapper ipa_create_user.py $(seq -w ${nb_accounts} | sed 's/^/${prefix}/') --sponsor=${$sponsor}",
-      unless      => "getent passwd $(seq -w ${nb_accounts} | sed 's/^/${prefix}/')",
-      environment => ["IPA_ADMIN_PASSWD=${admin_passwd}",
-                      "IPA_GUEST_PASSWD=${passwd}"],
-      path        => ['/bin', '/usr/bin', '/sbin','/usr/sbin'],
-      timeout     => $nb_accounts * 10,
-    }
-  }
-}

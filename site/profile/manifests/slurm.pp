@@ -7,7 +7,7 @@
 class profile::slurm::base (
   String $cluster_name,
   String $munge_key,
-  Enum['19.05', '20.11', '21.08'] $slurm_version = '20.11',
+  Enum['19.05', '20.11', '21.08'] $slurm_version,
   Boolean $force_slurm_in_path = false,
   Boolean $enable_x11_forwarding = true,
 )
@@ -73,10 +73,14 @@ class profile::slurm::base (
   }
 
   file { '/etc/slurm/cgroup.conf':
-    ensure => 'present',
-    owner  => 'slurm',
-    group  => 'slurm',
-    source => 'puppet:///modules/profile/slurm/cgroup.conf'
+    ensure  => 'present',
+    owner   => 'slurm',
+    group   => 'slurm',
+    content => epp('profile/slurm/cgroup.conf',
+      {
+        'slurm_version' => $slurm_version,
+      }
+    ),
   }
 
   file { '/etc/slurm/cgroup_allowed_devices_file.conf':
@@ -306,7 +310,9 @@ class profile::slurm::accounting(String $password, Integer $dbd_port = 6819) {
 }
 
 # Slurm controller class. This where slurmctld is ran.
-class profile::slurm::controller {
+class profile::slurm::controller (
+  String $selinux_context = 'user_u:user_r:user_t:s0',
+) {
   contain profile::slurm::base
   include profile::mail::server
 
@@ -314,6 +320,20 @@ class profile::slurm::controller {
     ensure => 'present',
     source => 'puppet:///modules/profile/slurm/slurm_mail',
     mode   => '0755',
+  }
+
+  $slurm_version = lookup('profile::slurm::base::slurm_version')
+  if $slurm_version == '21.08' {
+    file { '/etc/slurm/job_submit.lua':
+      ensure  => 'present',
+      owner   => 'slurm',
+      group   => 'slurm',
+      content => epp('profile/slurm/job_submit.lua',
+        {
+          'selinux_context' => $selinux_context,
+        }
+      ),
+    }
   }
 
   consul::service { 'slurmctld':
@@ -456,6 +476,11 @@ class profile::slurm::node {
   selinux::module { 'sshd_pam_slurm_adopt':
     ensure    => 'present',
     source_pp => 'puppet:///modules/profile/slurm/pam_slurm_adopt.pp',
+  }
+
+  selinux::module { 'slurmd':
+    ensure    => 'present',
+    source_pp => 'puppet:///modules/profile/slurm/slurmd.pp',
   }
 
   file { '/localscratch':
