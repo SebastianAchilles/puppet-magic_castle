@@ -133,6 +133,10 @@ class profile::base (
   package { 'csh':
     ensure => 'installed'
   }
+  
+  package { 'glibc-static':
+    ensure => 'installed'
+  }
 
   package { 'firewalld':
     ensure => 'absent',
