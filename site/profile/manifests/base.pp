@@ -1,6 +1,7 @@
 class profile::base (
   String $version,
   Optional[String] $admin_email = undef,
+  Array[String] $packages,
 ) {
   include stdlib
   include epel
@@ -63,6 +64,13 @@ class profile::base (
 
   package { 'firewalld':
     ensure => 'absent',
+  }
+
+  package { $packages:
+    ensure  => 'installed',
+    require => [
+      Yumrepo['epel'],
+    ],
   }
 
   class { 'firewall': }
